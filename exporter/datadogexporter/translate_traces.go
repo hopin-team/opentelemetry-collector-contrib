@@ -391,6 +391,21 @@ func decodeAPMId(id string) uint64 {
 }
 
 func getDatadogSpanName(s pdata.Span, datadogTags map[string]string) string {
+	var name string
+	if spanType, ok := datadogTags["type"]; ok {
+		name = spanType
+	} else {
+		name = _getDatadogSpanName(s, datadogTags)
+	}
+
+	if len(name) > 100 {
+		return name[0:100]
+	} else {
+		return name
+	}
+}
+
+func _getDatadogSpanName(s pdata.Span, datadogTags map[string]string) string {
 	// largely a port of logic here
 	// https://github.com/open-telemetry/opentelemetry-python/blob/b2559409b2bf82e693f3e68ed890dd7fd1fa8eae/exporter/opentelemetry-exporter-datadog/src/opentelemetry/exporter/datadog/exporter.py#L213
 	// Get span name by using instrumentation library name and span kind while backing off to span.kind
